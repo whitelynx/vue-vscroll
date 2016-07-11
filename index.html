@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>vue-vscroll example</title>
+
+	<style>
+		html {
+			background: black;
+			color: white;
+		}
+
+		html {
+			background: black;
+			color: white;
+		}
+
+		.example-list {
+			position: relative;
+			border: 1px solid gray;
+			height: 5em;
+		}
+		.example-list-2 {
+			position: relative;
+			border: 1px solid gray;
+			height: 15em;
+		}
+
+		.vscroll-content-spacer {
+			opacity: 0;
+			position: relative;
+			clear: both;
+		}
+
+		table {
+			border-collapse: collapse;
+			width: 100%;
+		}
+
+		table tr td {
+			border: 1px solid #333;
+			padding: 0 2px;
+		}
+
+		table tr td:first-child {
+			border-left: none;
+		}
+		table tr td:last-child {
+			border-right: none;
+		}
+
+		table tr:first-child td {
+			border-top: none;
+		}
+		table tr:last-child td {
+			border-bottom: none;
+		}
+	</style>
+
+	<script src="https://cdn.jsdelivr.net/vue/1.0.26/vue.js"></script>
+
+	<script src="dist/index.js"></script>
+
+</head>
+<body>
+
+	<div id="app">
+
+		<ul class="example-list" v-scroll:windowedItems="items">
+			<li v-for="item in windowedItems" track-by="id">{{ item.id }} ({{ $index }}): {{ item.name }}</li>
+		</ul>
+
+		<ul class="example-list-2" v-scroll:windowedItems2="items">
+			<li v-for="item in windowedItems2" track-by="id">{{ item.id }} ({{ $index }}): {{ item.name }}</li>
+		</ul>
+
+		<div class="example-list" v-scroll:windoweditems3="items">
+			<table>
+				<tr class="v-scroll-item" v-for="item in windoweditems3" track-by="id" :data-idx="$index" :data-id="item.id">
+					<td>{{ item.id }}</td> <td>{{ $index }}</td> <td>{{ item.name }}</td>
+				</tr>
+			</table>
+		</div>
+
+	</div>
+
+	<script>
+		window.onload = function() {
+			var items = [];
+			for(var i = 0; i < 1000; i++) {
+				items.push({ id: items.length, name: 'Hello Vue.js!' });
+				items.push({ id: items.length, name: 'We' });
+				items.push({ id: items.length, name: 'are' });
+				items.push({ id: items.length, name: 'all' });
+				items.push({ id: items.length, name: 'repeating' });
+				items.push({ id: items.length, name: 'items!' });
+			} // end for
+
+			Vue.config.debug = true;
+			new Vue({
+				el: '#app',
+				data: { items }
+			});
+		};
+	</script>
+</body>
+</html>

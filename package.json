@@ -1,0 +1,19 @@
+{
+  "name": "vue-vscroll",
+  "version": "1.0.0",
+  "description": "Virtual scrolling for Vue.js",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "David H. Bronke <dbronke@armt.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.3.13",
+    "grunt": "^0.4.5",
+    "grunt-babel": "^6.0.0"
+  },
+  "dependencies": {
+    "chunk-array": "^1.0.2"
+  }
+}
