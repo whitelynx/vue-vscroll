@@ -14,6 +14,8 @@
     "grunt-babel": "^6.0.0"
   },
   "dependencies": {
-    "chunk-array": "^1.0.2"
+    "chunk-array": "^1.0.2",
+    "eslint-plugin-html": "^1.5.1",
+    "gruntify-eslint": "^2.0.0"
   }
 }
