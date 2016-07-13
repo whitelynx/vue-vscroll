@@ -4,11 +4,11 @@ var enableDebugging;
 //enableDebugging = true;
 
 function debugFunc(funcName) {
-    return function() {
-        if(enableDebugging) {
-            console[funcName].apply(console, arguments);
-        }
-    };
+	return function() {
+		if(enableDebugging) {
+			console[funcName].apply(console, arguments);
+		}
+	};
 }
 var debug = debugFunc('log');
 debug.group = debugFunc('group');
@@ -16,253 +16,253 @@ debug.groupEnd = debugFunc('groupEnd');
 
 
 var Spacer = Vue.extend({
-    template: '<div class="vscroll-content-spacer" :style="{ height: height, marginTop: marginTop, marginBottom: marginBottom }"></div>'
+	template: '<div class="vscroll-content-spacer" :style="{ height: height, marginTop: marginTop, marginBottom: marginBottom }"></div>'
 });
 
 
 function getPx(style, key)
 {
-    var value = style;
-    if(key)
-    {
-        value = style.getPropertyValue(key);
-    } // end if
+	var value = style;
+	if(key)
+	{
+		value = style.getPropertyValue(key);
+	} // end if
 
-    if(typeof value == 'number')
-    {
-        return value;
-    }
-    else
-    {
-        var match = /^([0-9.-]+)(?:px)?$/.exec(value);
-        if(match)
-        {
-            return parseInt(match[1], 10);
-        } // end if
-    } // end if
+	if(typeof value == 'number')
+	{
+		return value;
+	}
+	else
+	{
+		var match = /^([0-9.-]+)(?:px)?$/.exec(value);
+		if(match)
+		{
+			return parseInt(match[1], 10);
+		} // end if
+	} // end if
 } // end getPx
 
 
 Vue.directive('scroll', {
-    priority: 2000,
+	priority: 2000,
 
-    params: [
-        // The number of pages of items (each the size of the viewport) to load
-        // each time we load a chunk (optional; default: 5):
-        'pagesPerChunk',
+	params: [
+		// The number of pages of items (each the size of the viewport) to load
+		// each time we load a chunk (optional; default: 5):
+		'pagesPerChunk',
 
-        // The number of pages around the center of a chunk to allow scrolling
-        // in without loading a new chunk; should be LESS THAN pagesPerChunk
-        // (optional; default: 3):
-        'pagesToScroll',
+		// The number of pages around the center of a chunk to allow scrolling
+		// in without loading a new chunk; should be LESS THAN pagesPerChunk
+		// (optional; default: 3):
+		'pagesToScroll',
 
-        // The height, in pixels, of a single item (optional; if missing, this
-        // will be determined by looking at rendered items):
-        'itemHeight'
-    ],
+		// The height, in pixels, of a single item (optional; if missing, this
+		// will be determined by looking at rendered items):
+		'itemHeight'
+	],
 
-    bind() {
-        debug.group('bind(', arguments, ')'); try {
-            var computedStyle = window.getComputedStyle(this.el, null);
+	bind() {
+		debug.group('bind(', arguments, ')'); try {
+			var computedStyle = window.getComputedStyle(this.el, null);
 
-            this.topSpacerData = { height: 0, marginTop: 0, marginBottom: 0 };
-            this.topSpacer = new Spacer({ data: this.topSpacerData });
-            this.topSpacer.$mount();
-            if(this.el.childNodes.length > 0) {
-                this.topSpacer.$before(this.el.childNodes[0]);
-            } else {
-                this.topSpacer.$appendTo(this.el);
-            }
+			this.topSpacerData = { height: 0, marginTop: 0, marginBottom: 0 };
+			this.topSpacer = new Spacer({ data: this.topSpacerData });
+			this.topSpacer.$mount();
+			if(this.el.childNodes.length > 0) {
+				this.topSpacer.$before(this.el.childNodes[0]);
+			} else {
+				this.topSpacer.$appendTo(this.el);
+			}
 
-            this.bottomSpacerData = { height: 0, marginTop: 0, marginBottom: 0 };
-            this.bottomSpacer = new Spacer({ data: this.bottomSpacerData });
-            this.bottomSpacer.$mount();
-            this.bottomSpacer.$appendTo(this.el);
+			this.bottomSpacerData = { height: 0, marginTop: 0, marginBottom: 0 };
+			this.bottomSpacer = new Spacer({ data: this.bottomSpacerData });
+			this.bottomSpacer.$mount();
+			this.bottomSpacer.$appendTo(this.el);
 
-            this.needItemHeightUpdate = false;
-            this.itemHeight = getPx(this.params.itemHeight);
-            if(!this.itemHeight)
-            {
-                this.itemHeight = getPx(computedStyle, 'line-height') || getPx(computedStyle, 'font-size') || 0;
-                this.needItemHeightUpdate = true;
-            } // end if
+			this.needItemHeightUpdate = false;
+			this.itemHeight = getPx(this.params.itemHeight);
+			if(!this.itemHeight)
+			{
+				this.itemHeight = getPx(computedStyle, 'line-height') || getPx(computedStyle, 'font-size') || 0;
+				this.needItemHeightUpdate = true;
+			} // end if
 
-            this.pagesPerChunk = typeof this.params.pagesPerChunk == 'string' ?
-                parseInt(this.params.pagesPerChunk, 10) : this.params.pagesPerChunk || 5;
-            this.pagesToScroll = typeof this.params.pagesToScroll == 'string' ?
-                parseInt(this.params.pagesToScroll, 10) : this.params.pagesToScroll || 3;
+			this.pagesPerChunk = typeof this.params.pagesPerChunk == 'string' ?
+				parseInt(this.params.pagesPerChunk, 10) : this.params.pagesPerChunk || 5;
+			this.pagesToScroll = typeof this.params.pagesToScroll == 'string' ?
+				parseInt(this.params.pagesToScroll, 10) : this.params.pagesToScroll || 3;
 
-            this.itemsPerPage = 50;
-            this.itemsPerChunk = this.itemsPerPage * this.pagesPerChunk;
+			this.itemsPerPage = 50;
+			this.itemsPerChunk = this.itemsPerPage * this.pagesPerChunk;
 
-            this.el.style.overflow = 'auto';
+			this.el.style.overflow = 'auto';
 
-            this.checkScrollPosition = this.checkScrollPosition.bind(this);
+			this.checkScrollPosition = this.checkScrollPosition.bind(this);
 
-            this.el.addEventListener('scroll', this.checkScrollPosition);
-            this.el.addEventListener('wheel', this.checkScrollPosition);
+			this.el.addEventListener('scroll', this.checkScrollPosition);
+			this.el.addEventListener('wheel', this.checkScrollPosition);
 
-            this.$scrollContext = {
-                inScrollWindow: this.inScrollWindow.bind(this),
-                items: []
-            };
+			this.$scrollContext = {
+				inScrollWindow: this.inScrollWindow.bind(this),
+				items: []
+			};
 
-            this.windowedItems = [];
+			this.windowedItems = [];
 
-            this.windowedItemsKey = this.arg || '$scrollWindowedItems';
-            debug("Setting vm.%s to:", this.windowedItemsKey, this.windowedItems);
-            Vue.set((this._scope || this.vm), this.windowedItemsKey, this.windowedItems);
+			this.windowedItemsKey = this.arg || '$scrollWindowedItems';
+			debug("Setting vm.%s to:", this.windowedItemsKey, this.windowedItems);
+			Vue.set((this._scope || this.vm), this.windowedItemsKey, this.windowedItems);
 
-            if(this.descriptor.ref) {
-                debug("Setting vm.$refs.%s to:", this.descriptor.ref, this);
-                (this._scope || this.vm).$refs[this.descriptor.ref] = this;
-            }
-        } finally { debug.groupEnd(); }
-    },
+			if(this.descriptor.ref) {
+				debug("Setting vm.$refs.%s to:", this.descriptor.ref, this);
+				(this._scope || this.vm).$refs[this.descriptor.ref] = this;
+			}
+		} finally { debug.groupEnd(); }
+	},
 
-    unbind() {
-        debug('unbind(', arguments, ')');
-        this.el.removeEventListener('scroll', this.checkScrollPosition);
-        this.el.removeEventListener('wheel', this.checkScrollPosition);
-        if(this.descriptor.ref) {
-            (this._scope || this.vm).$refs[this.descriptor.ref] = null;
-        }
-    },
+	unbind() {
+		debug('unbind(', arguments, ')');
+		this.el.removeEventListener('scroll', this.checkScrollPosition);
+		this.el.removeEventListener('wheel', this.checkScrollPosition);
+		if(this.descriptor.ref) {
+			(this._scope || this.vm).$refs[this.descriptor.ref] = null;
+		}
+	},
 
-    update(items) {
-        debug.group('update(', arguments, ')'); try {
-            this.items = items;
+	update(items) {
+		debug.group('update(', arguments, ')'); try {
+			this.items = items;
 
-            this.updateItemHeight();
+			this.updateItemHeight();
 
-            this.updateWindowExtents();
-        } finally { debug.groupEnd(); }
-    },
+			this.updateWindowExtents();
+		} finally { debug.groupEnd(); }
+	},
 
-    inScrollWindow(item, index) {
-        debug('inScrollWindow(', arguments, ')');
-        return (index >= this.firstItemIndex) && (index <= this.lastItemIndex);
-    },
+	inScrollWindow(item, index) {
+		debug('inScrollWindow(', arguments, ')');
+		return (index >= this.firstItemIndex) && (index <= this.lastItemIndex);
+	},
 
-    updateItemHeight(tries=0) {
-        debug.group('updateItemHeight(', tries, ')'); try {
-            if(this.pendingItemHeightUpdate) {
-                return;
-            } // end if
+	updateItemHeight(tries=0) {
+		debug.group('updateItemHeight(', tries, ')'); try {
+			if(this.pendingItemHeightUpdate) {
+				return;
+			} // end if
 
-            if(tries > 10) {
-                console.warn("Couldn't get actual height of child item after %s tries! Giving up.", tries);
-            }
+			if(tries > 10) {
+				console.warn("Couldn't get actual height of child item after %s tries! Giving up.", tries);
+			}
 
-            if(this.needItemHeightUpdate)
-            {
-                this.pendingItemHeightUpdate = true;
-                Vue.nextTick(() => {
-                    debug('updateItemHeight() => Vue.nextTick() callback');
-                    this.pendingItemHeightUpdate = false;
+			if(this.needItemHeightUpdate)
+			{
+				this.pendingItemHeightUpdate = true;
+				Vue.nextTick(() => {
+					debug('updateItemHeight() => Vue.nextTick() callback');
+					this.pendingItemHeightUpdate = false;
 
-                    if(this.el.children.length > 2)
-                    {
-                        var firstChildItem = this.el.querySelector('.v-scroll-item') || this.el.children[1];
-                        debug('firstChildItem:', firstChildItem);
-                        if(firstChildItem.offsetHeight > 0) {
-                            var computedItemStyle = window.getComputedStyle(firstChildItem, null);
+					if(this.el.children.length > 2)
+					{
+						var firstChildItem = this.el.querySelector('.v-scroll-item') || this.el.children[1];
+						debug('firstChildItem:', firstChildItem);
+						if(firstChildItem.offsetHeight > 0) {
+							var computedItemStyle = window.getComputedStyle(firstChildItem, null);
 
-                            var marginTop = getPx(computedItemStyle, 'margin-top');
-                            var marginBottom = getPx(computedItemStyle, 'margin-bottom');
+							var marginTop = getPx(computedItemStyle, 'margin-top');
+							var marginBottom = getPx(computedItemStyle, 'margin-bottom');
 
-                            this.itemHeight = firstChildItem.offsetHeight + Math.max(marginTop, marginBottom);
+							this.itemHeight = firstChildItem.offsetHeight + Math.max(marginTop, marginBottom);
 
-                            debug("Updating margins: top = %s, bottom = %s", marginTop, marginBottom);
-                            this.topSpacerData.marginTop = marginTop;
-                            this.topSpacerData.marginBottom = marginBottom;
-                            this.bottomSpacerData.marginTop = marginTop;
-                            this.bottomSpacerData.marginBottom = marginBottom;
+							debug("Updating margins: top = %s, bottom = %s", marginTop, marginBottom);
+							this.topSpacerData.marginTop = marginTop;
+							this.topSpacerData.marginBottom = marginBottom;
+							this.bottomSpacerData.marginTop = marginTop;
+							this.bottomSpacerData.marginBottom = marginBottom;
 
-                            this.needItemHeightUpdate = false;
+							this.needItemHeightUpdate = false;
 
-                            this.updateWindowExtents();
-                        } else {
-                            // Child item has no height; try again later.
-                            setTimeout(() => { this.updateItemHeight(tries + 1); }, 200);
-                        } // end if
-                    } // end if
-                });
-            } // end if
-        } finally { debug.groupEnd(); }
-    },
+							this.updateWindowExtents();
+						} else {
+							// Child item has no height; try again later.
+							setTimeout(() => { this.updateItemHeight(tries + 1); }, 200);
+						} // end if
+					} // end if
+				});
+			} // end if
+		} finally { debug.groupEnd(); }
+	},
 
-    updateViewportInfo() {
-        if(this.el.clientHeight != this.lastClientHeight) {
-            debug.group('updateViewportInfo(', arguments, ')'); try {
-                this.lastClientHeight = this.el.clientHeight;
+	updateViewportInfo() {
+		if(this.el.clientHeight != this.lastClientHeight) {
+			debug.group('updateViewportInfo(', arguments, ')'); try {
+				this.lastClientHeight = this.el.clientHeight;
 
-                this.itemsPerPage = Math.ceil(this.el.clientHeight / this.itemHeight);
-                debug('this.itemsPerPage:', this.itemsPerPage);
+				this.itemsPerPage = Math.ceil(this.el.clientHeight / this.itemHeight);
+				debug('this.itemsPerPage:', this.itemsPerPage);
 
-                // Cache the configured number of items.
-                this.itemsPerChunk = this.itemsPerPage * this.pagesPerChunk;
-                debug('this.itemsPerChunk:', this.itemsPerChunk);
-            } finally { debug.groupEnd(); }
-        }
-    },
+				// Cache the configured number of items.
+				this.itemsPerChunk = this.itemsPerPage * this.pagesPerChunk;
+				debug('this.itemsPerChunk:', this.itemsPerChunk);
+			} finally { debug.groupEnd(); }
+		}
+	},
 
-    checkScrollPosition() {
-        var el = this.el;
+	checkScrollPosition() {
+		var el = this.el;
 
-        // Load a new chunk if the viewport has scrolled beyond the configured number of scrollable pages.
-        if(!this.minScrollTop || el.scrollTop < this.minScrollTop || el.scrollTop > this.maxScrollTop) {
-            this.updateWindowExtents();
-        }
-    },
+		// Load a new chunk if the viewport has scrolled beyond the configured number of scrollable pages.
+		if(!this.minScrollTop || el.scrollTop < this.minScrollTop || el.scrollTop > this.maxScrollTop) {
+			this.updateWindowExtents();
+		}
+	},
 
-    updateWindowExtents() {
-        debug.group('updateWindowExtents(', arguments, ')'); try {
-            this.updateViewportInfo();
+	updateWindowExtents() {
+		debug.group('updateWindowExtents(', arguments, ')'); try {
+			this.updateViewportInfo();
 
-            var curScrollTop = this.el.scrollTop;
+			var curScrollTop = this.el.scrollTop;
 
-            // Figure out where the _middle_ of the viewport is.
-            var scrollMid = curScrollTop + (this.el.clientHeight / 2);
-            // Figure out what item would be in the middle of the viewport.
-            var itemIndexAtScrollMid = Math.floor(scrollMid / this.itemHeight);
+			// Figure out where the _middle_ of the viewport is.
+			var scrollMid = curScrollTop + (this.el.clientHeight / 2);
+			// Figure out what item would be in the middle of the viewport.
+			var itemIndexAtScrollMid = Math.floor(scrollMid / this.itemHeight);
 
-            var itemsPerScrollArea = this.itemsPerPage * this.pagesToScroll;
-            var scrollAreaHeight = itemsPerScrollArea * this.itemHeight;
-            debug('itemsPerScrollArea:', itemsPerScrollArea);
-            debug('scrollAreaHeight:', scrollAreaHeight);
+			var itemsPerScrollArea = this.itemsPerPage * this.pagesToScroll;
+			var scrollAreaHeight = itemsPerScrollArea * this.itemHeight;
+			debug('itemsPerScrollArea:', itemsPerScrollArea);
+			debug('scrollAreaHeight:', scrollAreaHeight);
 
-            this.firstItemIndex = Math.floor(Math.max(0, itemIndexAtScrollMid - (this.itemsPerChunk / 2)));
-            this.lastItemIndex = this.firstItemIndex + this.itemsPerChunk;
-            debug('this.firstItemIndex:', this.firstItemIndex);
-            debug('this.lastItemIndex:', this.lastItemIndex);
+			this.firstItemIndex = Math.floor(Math.max(0, itemIndexAtScrollMid - (this.itemsPerChunk / 2)));
+			this.lastItemIndex = this.firstItemIndex + this.itemsPerChunk;
+			debug('this.firstItemIndex:', this.firstItemIndex);
+			debug('this.lastItemIndex:', this.lastItemIndex);
 
-            var scrollAreaFirstItemIndex = this.firstItemIndex + (this.itemsPerChunk - itemsPerScrollArea) / 2;
-            this.minScrollTop = scrollAreaFirstItemIndex * this.itemHeight;
-            this.maxScrollTop = this.minScrollTop + scrollAreaHeight;
-            debug('this.minScrollTop:', this.minScrollTop, 'this.maxScrollTop:', this.maxScrollTop);
+			var scrollAreaFirstItemIndex = this.firstItemIndex + (this.itemsPerChunk - itemsPerScrollArea) / 2;
+			this.minScrollTop = scrollAreaFirstItemIndex * this.itemHeight;
+			this.maxScrollTop = this.minScrollTop + scrollAreaHeight;
+			debug('this.minScrollTop:', this.minScrollTop, 'this.maxScrollTop:', this.maxScrollTop);
 
-            var topSpacerHeight = this.firstItemIndex * this.itemHeight;
-            debug("Setting topSpacer's height to:", topSpacerHeight);
-            this.topSpacerData.height = topSpacerHeight + 'px';
-            var bottomSpacerHeight = Math.max(this.items.length - this.lastItemIndex, 0) * this.itemHeight;
-            debug("Setting bottomSpacer's height to:", bottomSpacerHeight);
-            this.bottomSpacerData.height = bottomSpacerHeight + 'px';
+			var topSpacerHeight = this.firstItemIndex * this.itemHeight;
+			debug("Setting topSpacer's height to:", topSpacerHeight);
+			this.topSpacerData.height = topSpacerHeight + 'px';
+			var bottomSpacerHeight = Math.max(this.items.length - this.lastItemIndex, 0) * this.itemHeight;
+			debug("Setting bottomSpacer's height to:", bottomSpacerHeight);
+			this.bottomSpacerData.height = bottomSpacerHeight + 'px';
 
-            this.updateWindowedItems();
-        } finally { debug.groupEnd(); }
-    },
+			this.updateWindowedItems();
+		} finally { debug.groupEnd(); }
+	},
 
-    updateWindowedItems() {
-        debug.group('updateWindowedItems(', arguments, ')'); try {
-            debug('Slicing items from %s to %s...', this.firstItemIndex, this.lastItemIndex);
+	updateWindowedItems() {
+		debug.group('updateWindowedItems(', arguments, ')'); try {
+			debug('Slicing items from %s to %s...', this.firstItemIndex, this.lastItemIndex);
 
-            this.windowedItems.splice.apply(this.windowedItems,
-                [0, this.windowedItems.length]
-                    .concat(this.items.slice(this.firstItemIndex, this.lastItemIndex))
-            );
+			this.windowedItems.splice.apply(this.windowedItems,
+				[0, this.windowedItems.length]
+					.concat(this.items.slice(this.firstItemIndex, this.lastItemIndex))
+			);
 
-            debug('this.windowedItems:', this.windowedItems);
-        } finally { debug.groupEnd(); }
-    }
+			debug('this.windowedItems:', this.windowedItems);
+		} finally { debug.groupEnd(); }
+	}
 });
